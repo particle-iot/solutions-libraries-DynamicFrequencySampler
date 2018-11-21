@@ -1,7 +1,7 @@
 #ifndef Sampler_h
 #define Sampler_h
 #include "application.h" 
-#include "../lib/RunningAverage/src/RunningAverage.h" 
+#include "RunningAverage.h" 
 
 class Sampler : public RunningAverage
 {
