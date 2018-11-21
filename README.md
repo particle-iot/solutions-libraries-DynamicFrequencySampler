@@ -5,7 +5,7 @@ Create "dynamic" or "smart" publishing frequencies for sensor data that you want
 ## Welcome to your library!
 
 This library enables two "smart" publishing frequencies so you can make sure you're publish high frequency data when it counts and saving on data when it doesn't. The current "smart" methodologies include: 
-1. "Outlier thresholds" aka (Gaussian distribution)[https://en.wikipedia.org/wiki/Normal_distribution#Standard_deviation_and_coverage] based thresholds
+1. "Outlier thresholds" aka [Gaussian distribution](https://en.wikipedia.org/wiki/Normal_distribution#Standard_deviation_and_coverage) based thresholds
 2. "Absolute thresholds"
 
 
