@@ -15,7 +15,7 @@ void setup() {
     // if you change `value` to anything > 3 then the `pretendTemperature`
     // should be 3 stdev outside of the average and you should see high
     // frequency publishs in the device cloud with the event name being "tempC".
-    Particle.function("stepChange", "stepChange");
+    Particle.function("stepChange", stepChange);
 }
 
 void loop() {
@@ -28,6 +28,6 @@ void loop() {
 }
 
 //change the pretendTemperature by the input
-void stepChange(String command) {
+int stepChange(String command) {
     value = command.toInt();
 }
