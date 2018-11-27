@@ -32,7 +32,6 @@ This library also automatically creates Particle functions that will toggle a de
 
 _TODO: Make it possible to disable the creation of debugger functions.  README_
 
-## LICENSE
-Copyright 2018 calvin@particle.io
+## Examples
 
-Licensed under the <insert your choice of license here> license
+1. __1_Sampler101__ - Basic example of how to initialize the library
