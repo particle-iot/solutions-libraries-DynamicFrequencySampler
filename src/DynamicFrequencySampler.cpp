@@ -1,10 +1,10 @@
 // returns the stdev of the data-set added sofar
-#include "Sampler.h"
+#include "DynamicFrequencySampler.h"
 #include <stdlib.h>
 #include "math.h"
 
 
-Sampler::Sampler(const char *eventName, int size,  int minPublishFrequency) : RunningAverage(size)
+DynamicFrequencySampler::DynamicFrequencySampler(const char *eventName, int size,  int minPublishFrequency) : RunningAverage(size)
 {
     _minPublishFrequency = minPublishFrequency;
     _eventName = eventName;
@@ -12,10 +12,10 @@ Sampler::Sampler(const char *eventName, int size,  int minPublishFrequency) : Ru
     //Register a function that will allow you to 
     char functionName[12];
     sprintf(functionName,"debug_%.6s", eventName);
-    Particle.function(functionName, &Sampler::toggleDebug, this);
+    Particle.function(functionName, &DynamicFrequencySampler::toggleDebug, this);
 }
 
-int Sampler::toggleDebug(String dummy)
+int DynamicFrequencySampler::toggleDebug(String dummy)
 {
     _debug = !_debug;
     int ret = _debug ? 1 : 0;
@@ -27,7 +27,7 @@ int Sampler::toggleDebug(String dummy)
     return ret;
 }
 
-double Sampler::getStd()
+double DynamicFrequencySampler::getStd()
 {
     if (_cnt == 0) return 0;
     double average = _sum / _cnt;
@@ -39,7 +39,7 @@ double Sampler::getStd()
     return sqrt(variance);
 }
 
-void Sampler::publish(double latestValue, int tolerance)
+void DynamicFrequencySampler::publish(double latestValue, int tolerance)
 {
     //add the latest value to the buffer.
     addValue(latestValue);
@@ -65,7 +65,7 @@ void Sampler::publish(double latestValue, int tolerance)
     }
 }
 
-void Sampler::publish(double latestValue, double lowerBound, double upperBound) 
+void DynamicFrequencySampler::publish(double latestValue, double lowerBound, double upperBound) 
 {
     //even though we dont implicitly get stats on the buffer for absolute bounds
     //the user may want to in the calling program, so well add the value to to the buffer

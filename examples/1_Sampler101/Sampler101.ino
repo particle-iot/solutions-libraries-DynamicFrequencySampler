@@ -1,10 +1,10 @@
-// Example usage for Sampler library by calvin@particle.io.
-#include "Sampler.h"
+// Example usage for DynamicFrequencySampler library by calvin@particle.io.
+#include "DynamicFrequencySampler.h"
 
 // Initialize objects from the lib
 int bufferSize = 2*60; // Depends on the looping interval, in this case its ~2 minutes of buffer
 int minPublishFrequency = 60*1000; // 1 minute
-Sampler temperatureSampler("tempC", bufferSize, minPublishFrequency); 
+DynamicFrequencySampler temperatureSampler("tempC", bufferSize, minPublishFrequency); 
 
 int value = 0;
 int stdDeviationTolerance = 3;
