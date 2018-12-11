@@ -4,14 +4,15 @@
 #include "math.h"
 
 
-DynamicFrequencySampler::DynamicFrequencySampler(const char *eventName, int size,  int minPublishFrequency) : RunningAverage(size)
+DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : RunningAverage(spec.length)
 {
-    _minPublishFrequency = minPublishFrequency;
-    _eventName = eventName;
+    //setup protected variables
+    _spec = spec;
     _debug = false;
+    
     //Register a function that will allow you to 
     char functionName[12];
-    sprintf(functionName,"debug_%.6s", eventName);
+    sprintf(functionName,"debug_%.6s", _spec.eventName);
     Particle.function(functionName, &DynamicFrequencySampler::toggleDebug, this);
 }
 
@@ -22,7 +23,7 @@ int DynamicFrequencySampler::toggleDebug(String dummy)
     _debugIndex = 0;
     if (ret) {
         Serial.printlnf("~~~~~~ Debugging ~~~~~"); 
-        Serial.printlnf("%s:   i,%.10s,%.10s,%.10s",_eventName,"latestValue", "lowerBound", "upperBound"); 
+        Serial.printlnf("%s:   i,%.10s,%.10s,%.10s",_spec.eventName,"latestValue", "lowerBound", "upperBound"); 
     }
     return ret;
 }
@@ -39,51 +40,54 @@ double DynamicFrequencySampler::getStd()
     return sqrt(variance);
 }
 
-void DynamicFrequencySampler::publish(double latestValue, int tolerance)
+void DynamicFrequencySampler::publish(double latestValue)
 {
-    //add the latest value to the buffer.
-    addValue(latestValue);
-    //get some stats on the buffer
-    double average = getAverage();
-    double stdev = getStd();
-    int timeSinceLast = millis() - _lastPublish;
-    double upperBound = average + tolerance*stdev;
-    double lowerBound = average - tolerance*stdev;
-    
-    if (_debug) {
-        Serial.printlnf("%s:%5i,%10.3f,%10.3f,%10.3f",_eventName, _debugIndex, latestValue, lowerBound, upperBound); 
-        _debugIndex++;
-    }
-
-    if (latestValue > upperBound || latestValue < lowerBound || timeSinceLast > _minPublishFrequency) {
-        String eventString = String::format("{\"%s\":%f }", _eventName, latestValue);
-        Particle.publish(_eventName, eventString, PRIVATE);
-        _lastPublish = millis();
-        if (_debug) {
-            Serial.printlnf("* published '%s'*", _eventName);
-        }
+    if (_spec.method == "jump") {
+        defineJumpLimits(latestValue, _spec.absValueChange);
+    } else if (_spec.method == "range") {
+        doPublish(latestValue, _spec.lower, _spec.upper);
+    } else if (_spec.method == "gaussian") {
+        defineGaussianLimits(latestValue, _spec.sigma);
     }
 }
 
-void DynamicFrequencySampler::publish(double latestValue, double lowerBound, double upperBound) 
+void DynamicFrequencySampler::defineGaussianLimits(double latestValue, double sigma) 
+{
+    //get some stats on the buffer
+    double average = getAverage();
+    double stdev = getStd();
+    double upperBound = average + sigma*stdev;
+    double lowerBound = average - sigma*stdev;
+    
+    doPublish(latestValue, lowerBound, upperBound);
+}
+
+void DynamicFrequencySampler::defineJumpLimits(double latestValue, double absValueChange) 
+{
+    double average = getAverage();
+    double upperBound = average + abs(absValueChange);
+    double lowerBound = average - abs(absValueChange);
+
+    doPublish(latestValue, lowerBound, upperBound);
+}
+
+void DynamicFrequencySampler::doPublish(double latestValue, double lowerBound, double upperBound)
 {
     //even though we dont implicitly get stats on the buffer for absolute bounds
     //the user may want to in the calling program, so well add the value to to the buffer
     addValue(latestValue);
-
-    int timeSinceLast = millis() - _lastPublish;
-    
     if (_debug) {
-        Serial.printlnf("%s: %4i, %10.3f, %10.3f, %10.3f",_eventName, _debugIndex, latestValue, lowerBound, upperBound); 
+        Serial.printlnf("%s: %4i, %10.3f, %10.3f, %10.3f",_spec.eventName, _debugIndex, latestValue, lowerBound, upperBound); 
         _debugIndex++;
     }
-
-    if (latestValue > upperBound || latestValue < lowerBound || timeSinceLast > _minPublishFrequency) {
-        String eventString = String::format("{\"%s\":%f }", _eventName, latestValue);
-        Particle.publish(_eventName, eventString, PRIVATE);
+    
+    int timeSinceLast = millis() - _lastPublish;
+    if (latestValue > upperBound || latestValue < lowerBound || timeSinceLast > _spec.minPublishFrequency) {
+        String eventString = String::format("{\"%s\":%f }", _spec.eventName, latestValue);
+        Particle.publish(_spec.eventName, eventString, PRIVATE);
         _lastPublish = millis();
         if (_debug) {
-            Serial.printlnf("* published '%s'*", _eventName);
+            Serial.printlnf("* published '%s'*", _spec.eventName);
         }
     }
 }

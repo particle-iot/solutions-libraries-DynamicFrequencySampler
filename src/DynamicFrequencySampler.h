@@ -3,21 +3,36 @@
 #include "application.h" 
 #include "RunningAverage.h" 
 
+typedef struct
+{
+    const char *eventName;
+    const char *method;
+    int length;
+    int minPublishFrequency;
+    double absValueChange;
+    double lower;
+    double upper;
+    int sigma;
+} SamplerSpec;
+
 class DynamicFrequencySampler : public RunningAverage
 {
 public:
-    DynamicFrequencySampler(const char *eventName, int size, int minPublishFrequency);
+    DynamicFrequencySampler(const SamplerSpec &spec);
     double getStd();
-    void publish(double latestValue, int tolerance);
-    void publish(double latestValue, double lowerBound, double upperBound);
+    void publish(double latestValue);
     int toggleDebug(String dummy);
-
+    
 protected: 
     int _lastPublish;
-    int _minPublishFrequency;
+    SamplerSpec _spec; 
     bool _debug;
-    const char *_eventName;
     int _debugIndex;
+
+private:
+    void defineGaussianLimits(double latestValue, double sigma);
+    void defineJumpLimits(double latestValue, double absValueChange);
+    void doPublish(double latestValue, double lowerBound, double upperBound);
 };
 
 #endif

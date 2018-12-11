@@ -2,12 +2,11 @@
 #include "DynamicFrequencySampler.h"
 
 // Initialize objects from the lib
-int bufferSize = 2*60; // Depends on the looping interval, in this case its ~2 minutes of buffer
-int minPublishFrequency = 60*1000; // 1 minute
-DynamicFrequencySampler temperatureSampler("tempC", bufferSize, minPublishFrequency); 
+SamplerSpec tempSpec { eventName: "tempC", method: "range", length: 20, minPublishFrequency: 60*1000, absValueChange: 3};
+
+DynamicFrequencySampler temperatureSampler(tempSpec); 
 
 int value = 0;
-int stdDeviationTolerance = 3;
 
 void setup() {
     // This function is useful for testing/demo-ing the functionality.
@@ -21,7 +20,7 @@ void setup() {
 void loop() {
     // Use the library's initialized objects and functions
     double pretendTemperature = random() + value;
-    temperatureSampler.publish(pretendTemperature, stdDeviationTolerance);
+    temperatureSampler.publish(pretendTemperature);
 
     //delay for just a sec
     delay(1000);
