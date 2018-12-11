@@ -5,28 +5,24 @@ Create "dynamic" or "smart" publishing frequencies for sensor data that you want
 ## Welcome to your library!
 
 This library enables two "smart" publishing frequencies so you can make sure you're publish high frequency data when it counts and saving on data when it doesn't. The current "smart" methodologies include: 
-1. "Outlier thresholds" aka [Gaussian distribution](https://en.wikipedia.org/wiki/Normal_distribution#Standard_deviation_and_coverage) based thresholds
-2. "Absolute thresholds"
+1. *"jump"*, the latest value is compared to the average across the last `<length>` measurements. If the latest value is more than `<absValueChange>` greater-than  || less-than that average then it will publish.
+2. *"gaussian"*, aka [Gaussian distribution](https://en.wikipedia.org/wiki/Normal_distribution#Standard_deviation_and_coverage) is similar to the "jump" method except that it uses the standard deviation of the last `<length>` measurements and the input `<sigma>` to create upper and lower bounds that trigger a publish.
+3. *"range"*, this is the simplist method and allows you to define a static range that will trigger a publish when your latest value falls outs side range.
+
 
 
 ## Usage
-To create an instance of this library, you'll need to initialize with 3 arguments.
+To create an instance of this library, you'll need to initialize a `SamplerSpec` structure.
 ```
-DynamicFrequencySampler myInstance("sensorOrEventName",10,60*1000)
+SamplerSpec tempSpec { eventName: "tempC", method: "jump", length: 20, minPublishFrequency: 60, absValueChange: 3};
+DynamicFrequencySampler temperatureSampler(tempSpec)
 ```
-This above example will create object that will publish an event named "sensorOrEventName". The payload of that event will be a JSON object with key `"sensorOrEventName"`. The library will make sure that events are published at least every `60*1000` milliseconds. The last argument `10` determines the buffer size which plays a role in the "Outlier thresholds" methodology, more on that in a second. 
+This above example will create an object that will publish an event named "tempC". The payload of that event will be a JSON object with key `"tempC"`. The library will make sure that events are published at least every `60` seconds. The length `20` determines how many subsequent publish calls are stored in the library's buffer. This buffer plays a role in both the "jump" and "gaussian" methods because buffer size which plays a role in defining the upper and lower thresholds for triggering publishes. 
 
-In order do actually publish data you will have to call into the `publish()` function, the signature of that function depends on which "smart" methodology you want to use. For "Outlier thresholds":
+In order do actually publish data you will have to call into the `publish()` function, the signature of that function is:
 ```
-myInstance.publish(value,3)
+temperatureSampler.publish(latestSensorValue)
 ```
-This will publish (ie `Particle.publish`) ONLY if `value` is 3 standard deviations away from the average of the buffer which you defined when you initialized `myInstance` OR if the last time publish was called is greater than `60*1000`. 
-
-For  "Absolute thresholds":
-```
-myInstance.publish(value,63.0,80.0)
-```
-This will publish (ie `Particle.publish`) ONLY if `value` is less than `63.0`, greater than `80.0` OR if the last time publish was called is greater than `60*1000`. 
 
 This library also automatically creates Particle functions that will toggle a debugging mode that prints out values and thresholds passed to the the `DynamicFrequencySampler.publish` function. Try enabling debugger mode and running `particle serial monitor` from your CLI (while your device is plugged into your computer) to see the output. 
 
@@ -36,4 +32,3 @@ This library also automatically creates Particle functions that will toggle a de
 
 ## Improvements: 
 - Make it possible to disable the creation of debugger functions. 
-- Enable "derivative" threshold publishing logic, ie when values change by X over y seconds then publish.

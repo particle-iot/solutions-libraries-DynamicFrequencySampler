@@ -2,7 +2,7 @@
 #include "DynamicFrequencySampler.h"
 
 // Initialize objects from the lib
-SamplerSpec tempSpec { eventName: "tempC", method: "range", length: 20, minPublishFrequency: 60*1000, absValueChange: 3};
+SamplerSpec tempSpec { eventName: "tempC", method: "range", length: 20, minPublishFrequency: 60, absValueChange: 3};
 
 DynamicFrequencySampler temperatureSampler(tempSpec); 
 

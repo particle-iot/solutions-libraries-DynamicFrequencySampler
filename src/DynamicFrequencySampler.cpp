@@ -8,6 +8,7 @@ DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : Runn
 {
     //setup protected variables
     _spec = spec;
+    _spec.minPublishFrequency  = _spec.minPublishFrequency * 1000; // convert to millis
     _debug = false;
     
     //Register a function that will allow you to 
