@@ -14,10 +14,10 @@ This library enables two "smart" publishing frequencies so you can make sure you
 ## Usage
 To create an instance of this library, you'll need to initialize a `SamplerSpec` structure.
 ```
-SamplerSpec tempSpec { eventName: "tempC", method: "jump", length: 20, minPublishFrequency: 60, absValueChange: 3};
+SamplerSpec tempSpec { eventName: "tempC", method: "jump", minInterval: 10, maxInterval: 60, length: 20, absValueChange: 3};
 DynamicFrequencySampler temperatureSampler(tempSpec)
 ```
-This above example will create an object that will publish an event named "tempC". The payload of that event will be a JSON object with key `"tempC"`. The library will make sure that events are published at least every `60` seconds. The length `20` determines how many subsequent publish calls are stored in the library's buffer. This buffer plays a role in both the "jump" and "gaussian" methods because buffer size which plays a role in defining the upper and lower thresholds for triggering publishes. 
+This above example will create an object that will publish an event named "tempC". The payload of that event will be a JSON object with key `"tempC"`. The library will make sure that events are published at least every `60` seconds, and not more than once every `10` seconds. The length `20` determines how many subsequent publish calls are stored in the library's buffer. This buffer plays a role in both the "jump" and "gaussian" methods because the entire buffer is used to determine the `average` and `stdev` which define the upper and lower thresholds for triggering publishes. 
 
 In order do actually publish data you will have to call into the `publish()` function, the signature of that function is:
 ```

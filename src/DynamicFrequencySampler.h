@@ -7,8 +7,9 @@ typedef struct
 {
     const char *eventName;
     const char *method;
+    int minInterval;
+    int maxInterval;
     int length;
-    int minPublishFrequency;
     double absValueChange;
     double lower;
     double upper;

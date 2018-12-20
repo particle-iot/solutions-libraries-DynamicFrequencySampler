@@ -8,7 +8,8 @@ DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : Runn
 {
     //setup protected variables
     _spec = spec;
-    _spec.minPublishFrequency  = _spec.minPublishFrequency * 1000; // convert to millis
+    _spec.maxInterval  = _spec.maxInterval * 1000; // convert to millis
+    _spec.minInterval  = _spec.minInterval * 1000; // convert to millis
     _debug = false;
     
     //Register a function that will allow you to 
@@ -83,7 +84,7 @@ void DynamicFrequencySampler::doPublish(double latestValue, double lowerBound, d
     }
     
     int timeSinceLast = millis() - _lastPublish;
-    if (latestValue > upperBound || latestValue < lowerBound || timeSinceLast > _spec.minPublishFrequency) {
+    if (timeSinceLast > _spec.minInterval && (latestValue > upperBound || latestValue < lowerBound || timeSinceLast > _spec.maxInterval)) {
         String eventString = String::format("{\"%s\":%f }", _spec.eventName, latestValue);
         Particle.publish(_spec.eventName, eventString, PRIVATE);
         _lastPublish = millis();
