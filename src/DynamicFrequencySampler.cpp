@@ -12,10 +12,16 @@ DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : Runn
     _spec.minInterval  = _spec.minInterval * 1000; // convert to millis
     _debug = false;
     
-    //Register a function that will allow you to 
+    //Helpful for debugging
+    //Register a Particle function that will print all calls to doPublish to Serial
     char functionName[12];
     sprintf(functionName,"debug_%.6s", _spec.eventName);
     Particle.function(functionName, &DynamicFrequencySampler::toggleDebug, this);
+    
+    //Register a Particle variable that will store the latest value
+    char variableName[12];
+    sprintf(variableName,"%.12s", _spec.eventName);
+    Particle.variable("temp", _particleVariable);
 }
 
 int DynamicFrequencySampler::toggleDebug(String dummy)
@@ -78,6 +84,7 @@ void DynamicFrequencySampler::doPublish(double latestValue, double lowerBound, d
     //even though we dont implicitly get stats on the buffer for absolute bounds
     //the user may want to in the calling program, so well add the value to to the buffer
     addValue(latestValue);
+    _particleVariable = latestValue;
     if (_debug) {
         Serial.printlnf("%s: %4i, %10.3f, %10.3f, %10.3f",_spec.eventName, _debugIndex, latestValue, lowerBound, upperBound); 
         _debugIndex++;

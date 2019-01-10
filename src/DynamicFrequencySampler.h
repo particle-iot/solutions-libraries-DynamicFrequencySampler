@@ -29,6 +29,7 @@ protected:
     SamplerSpec _spec; 
     bool _debug;
     int _debugIndex;
+    double _particleVariable;
 
 private:
     void defineGaussianLimits(double latestValue, double sigma);
