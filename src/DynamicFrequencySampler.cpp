@@ -21,7 +21,7 @@ DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : Runn
     //Register a Particle variable that will store the latest value
     char variableName[12];
     sprintf(variableName,"%.12s", _spec.eventName);
-    Particle.variable("temp", _particleVariable);
+    Particle.variable(variableName, _particleVariable);
 }
 
 int DynamicFrequencySampler::toggleDebug(String dummy)
