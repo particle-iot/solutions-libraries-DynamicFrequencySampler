@@ -32,3 +32,6 @@ This library also automatically creates Particle functions that will toggle a de
 
 ## Improvements: 
 - Make it possible to disable the creation of debugger functions. 
+
+## Changes: 
+v0.0.6 - Was getting compile warnings so changed branching logic to use strcmp

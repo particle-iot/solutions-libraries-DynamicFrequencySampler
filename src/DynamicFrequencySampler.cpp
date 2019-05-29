@@ -50,11 +50,11 @@ double DynamicFrequencySampler::getStd()
 
 void DynamicFrequencySampler::publish(double latestValue)
 {
-    if (_spec.method == "jump") {
+    if (strcmp(_spec.method,"jump")) { 
         defineJumpLimits(latestValue, _spec.absValueChange);
-    } else if (_spec.method == "range") {
+    } else if (strcmp(_spec.method,"range")) {
         doPublish(latestValue, _spec.lower, _spec.upper);
-    } else if (_spec.method == "gaussian") {
+    } else if (strcmp(_spec.method,"gaussian")) {
         defineGaussianLimits(latestValue, _spec.sigma);
     }
 }
