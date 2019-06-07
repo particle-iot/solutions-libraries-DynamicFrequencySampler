@@ -21,6 +21,7 @@ class DynamicFrequencySampler : public RunningAverage
 public:
     DynamicFrequencySampler(const SamplerSpec &spec);
     double getStd();
+    void enableCloudFunctions();
     void publish(double latestValue);
     int toggleDebug(String dummy);
     

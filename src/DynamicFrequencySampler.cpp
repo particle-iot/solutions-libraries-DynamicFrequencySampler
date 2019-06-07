@@ -12,6 +12,11 @@ DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : Runn
     _spec.minInterval  = _spec.minInterval * 1000; // convert to millis
     _debug = false;
     
+    
+}
+
+void DynamicFrequencySampler::enableCloudFunctions()
+{
     //Helpful for debugging
     //Register a Particle function that will print all calls to doPublish to Serial
     char functionName[12];
