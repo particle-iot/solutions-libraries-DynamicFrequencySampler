@@ -17,16 +17,27 @@ DynamicFrequencySampler::DynamicFrequencySampler(const SamplerSpec &spec) : Runn
 
 void DynamicFrequencySampler::enableCloudFunctions()
 {
+    Serial.printlnf("DynamicFrequencySampler - setting up cloud functions for instance '%s'.", _spec.eventName); 
     //Helpful for debugging
     //Register a Particle function that will print all calls to doPublish to Serial
     char functionName[12];
-    sprintf(functionName,"debug_%.6s", _spec.eventName);
-    Particle.function(functionName, &DynamicFrequencySampler::toggleDebug, this);
+    sprintf(functionName,"debug_%.5s", _spec.eventName);
+    bool success = Particle.function(functionName, &DynamicFrequencySampler::toggleDebug, this);
+    if (success) {
+        Serial.printlnf("-- function setup was a success.");
+    } else {
+        Serial.printlnf("-- function setup failed.");
+    }
     
     //Register a Particle variable that will store the latest value
     char variableName[12];
     sprintf(variableName,"%.12s", _spec.eventName);
-    Particle.variable(variableName, _particleVariable);
+    success = Particle.variable(variableName, _particleVariable);
+    if (success) {
+        Serial.printlnf("-- variable setup was a success.");
+    } else {
+        Serial.printlnf("-- variable setup failed.");
+    }
 }
 
 int DynamicFrequencySampler::toggleDebug(String dummy)
@@ -55,11 +66,11 @@ double DynamicFrequencySampler::getStd()
 
 void DynamicFrequencySampler::publish(double latestValue)
 {
-    if (strcmp(_spec.method,"jump")) { 
+    if (strcmp(_spec.method,"jump") == 0) { 
         defineJumpLimits(latestValue, _spec.absValueChange);
-    } else if (strcmp(_spec.method,"range")) {
+    } else if (strcmp(_spec.method,"range") == 0) {
         doPublish(latestValue, _spec.lower, _spec.upper);
-    } else if (strcmp(_spec.method,"gaussian")) {
+    } else if (strcmp(_spec.method,"gaussian") == 0) {
         defineGaussianLimits(latestValue, _spec.sigma);
     }
 }
@@ -78,8 +89,8 @@ void DynamicFrequencySampler::defineGaussianLimits(double latestValue, double si
 void DynamicFrequencySampler::defineJumpLimits(double latestValue, double absValueChange) 
 {
     double average = getAverage();
-    double upperBound = average + abs(absValueChange);
-    double lowerBound = average - abs(absValueChange);
+    double upperBound = average + absValueChange;
+    double lowerBound = average - absValueChange;
 
     doPublish(latestValue, lowerBound, upperBound);
 }
@@ -91,7 +102,7 @@ void DynamicFrequencySampler::doPublish(double latestValue, double lowerBound, d
     addValue(latestValue);
     _particleVariable = latestValue;
     if (_debug) {
-        Serial.printlnf("%s: %4i, %10.3f, %10.3f, %10.3f",_spec.eventName, _debugIndex, latestValue, lowerBound, upperBound); 
+        Serial.printlnf("%s:%4i,%10.3f,%10.3f,%10.3f",_spec.eventName, _debugIndex, latestValue, lowerBound, upperBound); 
         _debugIndex++;
     }
     
@@ -101,7 +112,7 @@ void DynamicFrequencySampler::doPublish(double latestValue, double lowerBound, d
         Particle.publish(_spec.eventName, eventString, PRIVATE);
         _lastPublish = millis();
         if (_debug) {
-            Serial.printlnf("* published '%s'*", _spec.eventName);
+            Serial.printlnf("published '%s'", _spec.eventName);
         }
     }
 }
