@@ -34,6 +34,8 @@ This library also automatically creates Particle functions that will toggle a de
 - Make it possible to disable the creation of debugger functions. 
 
 ## Changes: 
-v0.0.6 - Was getting compile warnings so changed branching logic to use strcmp
-v0.0.7 - Moved the particle cloud functions to a new method `enableCloudFunctions`
-v0.0.8 - Adding logging and found bug in strcmp logic
+*v0.0.6* - Was getting compile warnings so changed branching logic to use strcmp
+
+*v0.0.7* - Moved the particle cloud functions to a new method `enableCloudFunctions`
+
+*v0.0.8* - Adding logging and found bug in strcmp logic
